@@ -1,0 +1,6 @@
+praw
+beautifulsoup4
+python-dotenv
+requests
+urllib3
+datetime
