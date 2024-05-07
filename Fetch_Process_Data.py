@@ -1,6 +1,7 @@
 import re
 import requests
 import queue
+import heapq
 from time import sleep
 from bs4 import BeautifulSoup
 
@@ -15,31 +16,33 @@ def fetch_html_title(url):
 
     while retries > 0:
         try:
-            response = requests.get(url)
+            response = requests.get(url,timeout=10) #10 second timeout
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 return soup.title.string.strip() if soup.title else 'No title found'
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             retries -= 1  #decrement the number of tries
-            sleep(backoff) #wait backoff amount before trying agai
+            sleep(backoff) #wait backoff amount before trying again
             backoff *= 2  #increase backoff to wait a bit longer if more retires are neeeded
-    return 'Failed to retrieve title after 3 attempts'
+            if retries == 0:
+                print(f"Failed to retrieve title after 3 attempts: {e}")
+    return 'Failed to retrieve title'
 
 def fetch_posts(reddit, subreddit_name, limit):
     #retrieve posts from subreddit & store them in a priority queue based on composition of score & comments
     subreddit = reddit.subreddit(subreddit_name)
-    post_queue = queue.PriorityQueue()     #deploy a priority for thread-safe operations
+    post_heapList= []                                #deploy a list for heapq
     for submission in subreddit.hot(limit=limit): 
         #use the both score(upvotes - downvores) and #comments as a priority measure
         priority = -(submission.score + submission.num_comments) #negative values get more priority
-        post_queue.put((priority, submission))
-    return post_queue
+        heapq.heappush(post_heapList,(priority,submission)) #push item/post onto heap
+    return post_heapList
 
-def process_posts(post_queue):
+def process_posts(heap):
     #process a list of praw Submission objects into JSON formatted data, including linked HTML titles
     processed_posts = []
-    while not post_queue.empty():  #loop through pri queue based on the priority metric
-        _, submission = post_queue.get()  #get the post with the highest priority
+    while heap: #loop through heapq if items contained within based on the priority metric
+        priority, submission = heapq.heappop(heap)  #pop smallest of heap
         post_info = {
             'id': submission.id,
             'title': submission.title,
