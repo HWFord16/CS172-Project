@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import threading
 
 class DataStorage:
     def __init__(self, target_volume_mb=500, file_size_mb=10):
@@ -8,25 +9,27 @@ class DataStorage:
         self.file_size_mb = file_size_mb
         self.total_data_collected = 0
         self.file_index = 1
+        self.lock = threading.Lock() #thread lock for safe/un-interrupted file writes
         self.output_folder = 'CrawledData'
         self._check_directory_exists(self.output_folder)
 
     def store_data(self, processed_posts, subreddit_name):
-        for post_json in processed_posts:
-            current_file_size = sys.getsizeof(post_json)  #calculate post in bytes per post
-            self.total_data_collected += current_file_size #update total size
-            
-            #check the current post size doesnt exceed file size limit
-            if current_file_size >= self.file_size_mb * 1024 * 1024:
-                self._write_to_file(processed_posts, subreddit_name) #write all processed post to file prior to limit
-                processed_posts = [] #reset the processed posts
+        with self.lock: #garuntee that only single thread can execute storage process
+            for post_json in processed_posts:
+                current_file_size = sys.getsizeof(post_json)  #calculate post in bytes per post
+                self.total_data_collected += current_file_size #update total size
+                
+                #check the current post size doesnt exceed file size limit
+                if current_file_size >= self.file_size_mb * 1024 * 1024:
+                    self._write_to_file(processed_posts, subreddit_name) #write all processed post to file prior to limit
+                    processed_posts = [] #reset the processed posts
 
-            #check total limit size and break out of loop if exceeded
-            if self.total_data_collected >= self.target_volume_mb * 1024 * 1024:
-                break
-        # check for any remaining processed post after loop
-        if processed_posts:
-            self._write_to_file(processed_posts, subreddit_name)
+                #check total limit size and break out of loop if exceeded
+                if self.total_data_collected >= self.target_volume_mb * 1024 * 1024:
+                    break
+            # check for any remaining processed post after loop
+            if processed_posts:
+                self._write_to_file(processed_posts, subreddit_name)
 
     #write processed post to file
     def _write_to_file(self, data, subreddit_name):
