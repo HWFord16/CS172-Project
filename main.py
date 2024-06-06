@@ -26,8 +26,8 @@ def crawl_subreddit(subreddit_info):
         return [], subreddit_name
 
 def main():
-    postLimit = 10
-    subreddits = ['worldnews', 'science', 'space', 'sports', 'food']
+    postLimit = 100
+    subreddits = ['news', 'science', 'space', 'sports', 'books']
 
     # Tuple list for passing multiple arguments
     subreddit_info = [(subreddit, postLimit) for subreddit in subreddits]
