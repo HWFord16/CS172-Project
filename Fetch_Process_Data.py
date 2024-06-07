@@ -43,6 +43,34 @@ def fetch_html_title(url):
 
 def fetch_posts(reddit, subreddit_name, limit):
     try:
+        post_heap_list = [] #list for heapq
+        sections = [        #sort options on subreddits to crawl
+            ('hot', None),
+            ('new', None),
+            ('top', 'all'),('top', 'year'),('top', 'month'),
+            ('controversial', 'all'),('controversial', 'year'),('controversial', 'month'),
+            ('rising', None)
+        ]
+
+        # Retrieve posts from subreddit & store them in a priority queue based on composition of score & comments
+        for section, time_filter in sections:
+            subreddit = getattr(reddit.subreddit(subreddit_name), section)
+            if time_filter:
+                submissions = subreddit(time_filter=time_filter, limit=limit)
+            else:
+                submissions = subreddit(limit=limit)
+
+            for submission in submissions:
+                # Use both score (upvotes - downvotes) and number of comments as a priority measure
+                priority = -(submission.score + submission.num_comments)  # Negative values get more priority
+                heapq.heappush(post_heap_list, (priority, submission.id, submission)) # Push item/post onto heap
+                
+                #break out of loop if post-limit is met
+                if len(post_heap_list) >= limit:
+                    break
+            if len(post_heap_list) >= limit:
+                break
+        
         #print(f"\nStarting fetch_posts for r/{subreddit_name}")
         # Retrieve posts from subreddit & store them in a priority queue based on composition of score & comments
         subreddit = reddit.subreddit(subreddit_name)

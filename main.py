@@ -23,11 +23,11 @@ def crawl_subreddit(subreddit_info):
         return processed_posts, subreddit_name
     except Exception as e:
         print(f"Failed to process r/{subreddit_name}: {e}")
-        return [], subreddit_name
+        return subreddit_name
 
 def main():
-    postLimit = 100
-    subreddits = ['news', 'science', 'space', 'sports', 'books']
+    postLimit = 50000
+    subreddits = ['news', 'science', 'space', 'sports', 'books', 'worldnews', 'AskReddit', 'askscience','personalfinance']
 
     # Tuple list for passing multiple arguments
     subreddit_info = [(subreddit, postLimit) for subreddit in subreddits]
