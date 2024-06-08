@@ -2,15 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Search Results</title>
+    <title>CS172 Group33 Search Results</title>
     <link rel="stylesheet" href="/webUI_styling.css">
     <style>
+      body {
+        background-color: #FFFDD0; /* Cream color */
+        font-family: Arial, sans-serif;
+      }
       .back-button {
         display: inline-block;
         padding: 10px 20px;
         margin-top: 20px;
         font-size: 16px;
-        color: #ffffff;
+        color: #d0e3e5;
         background-color: #007bff;
         border: none;
         border-radius: 4px;
@@ -31,13 +35,12 @@
         {% for result in results %}
           <li>
             <strong>{{ result.title }}</strong><br>
-            User: {{ result.user }}<br>
-            Body: {{ result.body }}<br>
-            URL: <a href="{{ result.url }}">{{ result.url }}</a><br>
-            Linked Title: {{ result.linked_title }}<br>
-            Votes: {{ result.votes }}<br>
-            Timestamp: {{ result.timestamp }}<br>
-            Score: {{ result.score }}
+            <strong>User:</strong> {{ result.user }}<br>
+            <strong>Body:</strong> {{ result.body }}<br>
+            <strong>URL:</strong> <a href="{{ result.url }}">{{ result.url }}</a><br>
+            <strong>Linked Title:</strong> {{ result.linked_title }}<br>
+            <strong>Votes:</strong> {{ result.votes }}<br>
+            <strong>Score:</strong> {{ result.score }}
           </li>
         {% endfor %}
       </ul>

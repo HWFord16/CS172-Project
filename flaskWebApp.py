@@ -3,21 +3,21 @@ import lucene
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.index import DirectoryReader
 from org.apache.lucene.search import IndexSearcher, BooleanQuery, BooleanClause
-from org.apache.lucene.queryparser.classic import QueryParser
+from org.apache.lucene.queryparser.classic import QueryParser, QueryParserBase
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 from java.nio.file import Paths
 import time
 
 app = Flask(__name__, static_folder='')
 
-# Initialize lucene and the JVM
+#initialize lucene and the JVM
 lucene.initVM()
 directory = SimpleFSDirectory(Paths.get('/home/cs172/CS172-Project/PyLucene_PartB/Indexed_Data'))
 reader = DirectoryReader.open(directory)
 searcher = IndexSearcher(reader)
 analyzer = StandardAnalyzer()
 
-# Read minimum timestamp for normalization
+#read minimum timestamp for normalization
 with open('/home/cs172/CS172-Project/PyLucene_PartB/Indexed_Data/min_timestamp.txt', 'r') as f:
     min_timestamp = float(f.read().strip())
 
@@ -25,11 +25,11 @@ def custom_score(doc, bm25_score, votes, timestamp, vote_weight, time_weight, re
     normalized_votes = votes / (votes + 1.0)
     current_time = float(time.time() * 1000)  # Current time in milliseconds
 
-    # Ensure timestamp is not zero to avoid division errors and unrealistic score calculations
+    #ensure timestamp is not zero to avoid division errors and unrealistic score calculations
     if timestamp == 0:
         timestamp = min_timestamp
 
-    # Normalization formula
+    #normalization formula
     normalized_time = 1.0 - (current_time - timestamp) / (current_time - min_timestamp)
     combined_score = (relevance_weight * bm25_score) + (vote_weight * normalized_votes) + (time_weight * normalized_time)
     
@@ -50,20 +50,23 @@ def search():
     time_weight = float(request.form.get('time_weight', 0.25))
     relevance_weight = float(request.form.get('relevance_weight', 1.0))
     
-    print(f"Query: {query_str}")  # Debug statement
-    print(f"Ranking Option: {ranking_option}, Sort by: {sort_by}")  # Debug statement
+    print(f"Query: {query_str}")  #debug statement
+    print(f"Ranking Option: {ranking_option}, Sort by: {sort_by}")  # dbug statement
 
     fields = ["title", "body", "user", "linked_title", "comments"]
     query = BooleanQuery.Builder()
 
+    #escape special characters in the query string
+    escaped_query_str = QueryParserBase.escape(query_str)
+
     for field in fields:
         parser = QueryParser(field, analyzer)
-        parsed_query = parser.parse(query_str)
+        parsed_query = parser.parse(escaped_query_str)
         query.add(parsed_query, BooleanClause.Occur.SHOULD)
 
     hits = searcher.search(query.build(), 10).scoreDocs
 
-    print(f"Number of hits: {len(hits)}")  # Debug statement
+    print(f"Number of hits: {len(hits)}")  #debug statement
 
     results = []
     seen_docs = set()
@@ -88,12 +91,12 @@ def search():
                 "url": doc.get("url"),
                 "linked_title": doc.get("linked_title"),
                 "votes": votes,
-                "timestamp": timestamp,
                 "score": combined_score,
-                "bm25_score": bm25_score
+                "bm25_score": bm25_score,
+                "timestamp": timestamp
             }
             results.append(result)
-            print(f"Document: {result}")  # Debug statement
+            print(f"Document: {result}")  #debug statement
 
     if ranking_option == 'custom':
         if sort_by == 'relevance':
@@ -101,7 +104,7 @@ def search():
         elif sort_by == 'votes':
             results.sort(key=lambda x: x["votes"], reverse=True)
         elif sort_by == 'time':
-            results.sort(key=lambda x: x["timestamp"], reverse=True)
+            results.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
         elif sort_by == 'combined':
             results.sort(key=lambda x: x["score"], reverse=True)
     else:

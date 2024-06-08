@@ -70,7 +70,7 @@ def index_data(writer, data):
 
 
 #path to data directory and index directory
-data_dir = '/home/cs172/CS172-Project/MultiThreading_PartA/CrawledDataTest'
+data_dir = '/home/cs172/CS172-Project/MultiThreading_PartA/CrawledData'
 index_dir = '/home/cs172/CS172-Project/PyLucene_PartB/Indexed_Data'
 
 #create the index
