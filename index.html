@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Search Interface</title>
+    <link rel="stylesheet" href="/webUI_styling.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>CS172 - Group 33 Final Project</h1>
+      <h2>Search Interface</h2>
+      <form action="/search" method="post">
+        <input type="text" name="query" placeholder="Enter your search query" required>
+        <div>
+          <label for="sort_by">Sort by:</label>
+          <select name="sort_by" id="sort_by">
+            <option value="relevance">Relevance</option>
+            <option value="votes">Votes</option>
+            <option value="time">Time</option>
+            <option value="combined">Combined</option>
+          </select>
+        </div>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </body>
+</html>
+

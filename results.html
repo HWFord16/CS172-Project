@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="/webUI_styling.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1> Top Results For : </h1>
+      <h2> "{{ query }}"</h2>
+      <ul>
+        {% for result in results %}
+          <li>
+            <strong>{{ result.title }}</strong><br>
+            User: {{ result.user }}<br>
+            Body: {{ result.body }}<br>
+            URL: <a href="{{ result.url }}">{{ result.url }}</a><br>
+            Linked Title: {{ result.linked_title }}<br>
+            Votes: {{ result.votes }}<br>
+            Timestamp: {{ result.timestamp }}<br>
+            Score: {{ result.score }}
+          </li>
+        {% endfor %}
+      </ul>
+      <a href="/">Back to search</a>
+    </div>
+  </body>
+</html>
