@@ -2,23 +2,66 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Search Interface</title>
+    <title>CS172-Group33_SearchEngine</title>
     <link rel="stylesheet" href="/webUI_styling.css">
+    <style>
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+    </style>
+    <script>
+      function toggleCustomOptions() {
+        const rankingOption = document.getElementById('ranking_option').value;
+        const customOptions = document.getElementById('custom_options');
+        if (rankingOption === 'custom') {
+          customOptions.style.display = 'block';
+        } else {
+          customOptions.style.display = 'none';
+        }
+      }
+    </script>
   </head>
   <body>
     <div class="container">
       <h1>CS172 - Group 33 Final Project</h1>
       <h2>Search Interface</h2>
       <form action="/search" method="post">
-        <input type="text" name="query" placeholder="Enter your search query" required>
-        <div>
-          <label for="sort_by">Sort by:</label>
-          <select name="sort_by" id="sort_by">
-            <option value="relevance">Relevance</option>
-            <option value="votes">Votes</option>
-            <option value="time">Time</option>
-            <option value="combined">Combined</option>
+        <div class="form-group">
+          <input type="text" name="query" placeholder="Enter your search query" required>
+        </div>
+        <div class="form-group">
+          <label for="ranking_option">Ranking Option:</label>
+          <select name="ranking_option" id="ranking_option" onchange="toggleCustomOptions()">
+            <option value="default">PyLucene Default Ranking</option>
+            <option value="custom">Custom Score</option>
           </select>
+        </div>
+        <div id="custom_options" style="display: none;">
+          <div class="form-group">
+            <label for="sort_by">Sort by:</label>
+            <select name="sort_by" id="sort_by">
+              <option value="relevance">Relevance</option>
+              <option value="votes">Votes</option>
+              <option value="time">Time</option>
+              <option value="combined">Combined</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="vote_weight">Vote Weight:</label>
+            <input type="number" name="vote_weight" id="vote_weight" step="0.1" value="1.0" min="0" max="1">
+          </div>
+          <div class="form-group">
+            <label for="time_weight">Time Weight:</label>
+            <input type="number" name="time_weight" id="time_weight" step="0.1" value="0.5" min="0" max="1">
+          </div>
+          <div class="form-group">
+            <label for="relevance_weight">Relevance Weight:</label>
+            <input type="number" name="relevance_weight" id="relevance_weight" step="0.1" value="1.0" min="0" max="1">
+          </div>
         </div>
         <button type="submit">Search</button>
       </form>
